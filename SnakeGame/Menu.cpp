@@ -345,7 +345,7 @@ void NadoMenu_Settings(Game& game, sf::RenderWindow& window)
 			// Подсветка выбранного пункта
 			if (static_cast<int>(i) == game.selectedIndex) {
 				text.setFillColor(sf::Color(106, 90, 205));
-				// Можно ещё добавить обводку или рамку, если хочется
+				// Можно ещё добавить обводку или рамку, если хочется.
 			}
 
 			window.draw(text);
