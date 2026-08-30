@@ -10,13 +10,10 @@
     <ClCompile Include="GameMain.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
+    <ClCompile Include="Platform.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Math.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Apple.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Game.cpp">
@@ -30,16 +27,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Player.h">
+    <ClInclude Include="Platform.h">
       <Filter>Sources</Filter>
     </ClInclude>
     <ClInclude Include="Math.h">
       <Filter>Sources</Filter>
     </ClInclude>
     <ClInclude Include="Constants.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="Apple.h">
       <Filter>Sources</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">

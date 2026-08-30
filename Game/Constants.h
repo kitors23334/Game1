@@ -8,6 +8,7 @@ const float Size_Kletko = 38.f;
 const float PLAYER_SIZE = 38.f;
 const float APPLE_SIZE = 35.f;
 const float PAUSE_LENGTH = 3.f;
+const float ballRadius = 15.f;
 extern int Volume;
 const int Const_NUM_APPLES = 100;
 extern int NUM_APPLES;

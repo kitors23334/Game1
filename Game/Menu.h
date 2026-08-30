@@ -14,8 +14,7 @@ const std::vector<std::wstring> options = {
 };
 const std::vector<std::wstring> menu = {
 	L"Enter = choose, W = up, S = down",
-	L"Difficulty level",
-	L"table of records",
+	L"Start game",// Difficulty level
 	L"settings",
 	L"EXIT"
 };
@@ -26,10 +25,6 @@ const std::vector<std::wstring> Difficulty_Level = {
 	L"Medium ",
 	L"Lighter than heavy",
 	L"Heavy ",
-	L"back"
-};
-const std::vector<std::wstring> Leader_Board = {
-	L"Enter = choose, W = up, S = down, B = Return",
 	L"back"
 };
 const std::vector<std::wstring> death = {

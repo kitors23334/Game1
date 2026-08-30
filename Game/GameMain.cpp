@@ -11,28 +11,6 @@
 #include <string>
 #include "Menu.h"
 
-struct PlayerScore
-{
-	std::string name;
-	int score;
-};
-
-void sortLeaderboard(std::vector<PlayerScore>& board)
-{
-
-	size_t n = board.size();
-	for (size_t i = 0; i < n - 1; ++i) {
-		bool swapped = false;
-		for (size_t j = 0; j < n - i - 1; ++j) {
-			if (board[j].score < board[j + 1].score) { // по убыванию
-				std::swap(board[j], board[j + 1]);
-				swapped = true;
-			}
-		}
-		if (!swapped) break; // оптимизация: если перестановок не было — массив уже отсортирован
-	}
-}
-
 int main()
 {
 	Game game;
@@ -45,6 +23,12 @@ int main()
 	game.INtext.setFillColor(sf::Color::White);
 	game.INtext.setCharacterSize(24);
 	game.INtext.setPosition(SCREEN_WIDTH - 570, SCREEN_HEIGHT - 350); // слева сверху
+
+	// --- Шарик ---
+	float ballRadius = 15.f;
+	sf::Vector2f ballPos(SCREEN_WIDTH / 2.f, 100);
+	float ballSpeedX = 0.2f;
+	float ballSpeedY = 0.1f;
 
 	// Текст для надписи "Score"
 	sf::Text scoreLabel("Score:", game.font, 15);
@@ -68,12 +52,6 @@ int main()
 
 	int seed = static_cast<int>(time(nullptr));
 	srand(seed);
-
-	int Alice = (std::rand() % (200 - 1 + 1)) + 1;
-	int Bob = (std::rand() % (200 - 1 + 1)) + 1;
-	int Carol = (std::rand() % (200 - 1 + 1)) + 1;
-	int Dave = (std::rand() % (200 - 1 + 1)) + 1;
-	int Eve = (std::rand() % (200 - 1 + 1)) + 1;
 
 	// Init window
 	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Apples game!");
@@ -100,19 +78,6 @@ int main()
 		if (music == false) {
 			music_stext = "music";
 		}
-		scoreValue.setString(std::to_string(game.numEatenApples));
-		scoreValue2.setString(std::to_string(game.MaxNumEatenApples));
-
-		// Calculate time delta
-		std::vector<PlayerScore> leaderboard =
-		{
-			{game.inputText,  game.numEatenApples},
-			{"Alice",  Alice},
-			{"Bob",     Bob},
-			{"Carol",   Carol},
-			{"Dave",    Dave},
-			{"Eve",     Eve}
-		};
 
 		// Calculate time delta
 		float currentTime = gameClock.getElapsedTime().asSeconds();
@@ -123,150 +88,105 @@ int main()
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			std::vector<PlayerScore> leaderboard =
-			{
-				{game.inputText,  game.numEatenApples},
-				{"Alice",  Alice},
-				{"Bob",     Bob},
-				{"Carol",   Carol},
-				{"Dave",    Dave},
-				{"Eve",     Eve}
-			};
 			if (event.type == sf::Event::Closed)
 			{
 				game.saveGame();
 				window.close();
 				break;
-				delete[] game.apples;
 			}
-			//if (game.isGame == false)
-			//{
-			//	if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-			//	{
-			//		window.close();
-			//		break;
-			//		delete[] game.apples;
-			//	}
-			//}
 		}
-
+		game.platform.direction = PlatformDirection::Stop;
 		UpdateGame(game, deltaTime);
 
-		if (game.numEatenApples > game.MaxNumEatenApples)
+		if (game.isGame == true)
 		{
-			game.MaxNumEatenApples = game.numEatenApples;
+			if (game.isGamepause == false)
+			{
+				ballPos.x += ballSpeedX;
+				ballPos.y += ballSpeedY;
+
+				if (ballPos.x - ballRadius <= 0.f) {
+					ballPos.x = ballRadius;
+					ballSpeedX = -ballSpeedX;
+				}
+				else if (ballPos.x + ballRadius >= SCREEN_WIDTH) {
+					ballPos.x = SCREEN_WIDTH - ballRadius;
+					ballSpeedX = -ballSpeedX;
+				}
+
+				if (ballPos.y - ballRadius <= 0.f) {
+					ballPos.y = ballRadius;
+					ballSpeedY = -ballSpeedY;
+				}
+				else if (ballPos.y + ballRadius >= SCREEN_HEIGHT) {
+					ballPos.y = SCREEN_HEIGHT - ballRadius;
+					ballSpeedY = -ballSpeedY;
+				}
+
+				sf::FloatRect platformBounds = game.platform.PlatformOb.getGlobalBounds();
+
+				float closestX = ballPos.x;
+				float closestY = ballPos.y;
+
+				if (closestX < platformBounds.left)
+					closestX = platformBounds.left;
+				else if (closestX > platformBounds.left + platformBounds.width)
+					closestX = platformBounds.left + platformBounds.width;
+
+				if (closestY < platformBounds.top)
+					closestY = platformBounds.top;
+				else if (closestY > platformBounds.top + platformBounds.height)
+					closestY = platformBounds.top + platformBounds.height;
+
+				float dx = ballPos.x - closestX;
+				float dy = ballPos.y - closestY;
+				float distSq = dx * dx + dy * dy;
+
+				if (distSq < ballRadius * ballRadius) {
+					float dist = std::sqrt(distSq);
+					if (dist == 0.f) dist = 0.0001f;
+
+					float nx = dx / dist;
+					float ny = dy / dist;
+
+					float overlap = ballRadius - dist;
+					ballPos.x += nx * overlap;
+					ballPos.y += ny * overlap;
+
+					// V_new = V_old - 2 * (V_old · N) * N
+					float dot = ballSpeedX * nx + ballSpeedY * ny;
+					ballSpeedX -= 2.f * dot * nx;
+					ballSpeedY -= 2.f * dot * ny;
+				}
+			}
 		}
 
 		// Draw game
 		window.clear();
-		DrawGame(game.back1, game, window);
+		DrawGame(game, window);
+
+		// Рисуем шарик
+		sf::CircleShape ball(ballRadius);
+		ball.setFillColor(sf::Color::Red);
+		ball.setPosition(ballPos.x - ballRadius, ballPos.y - ballRadius);
+		window.draw(ball);
 
 		NadoMenu(game, window);
 		NadoMenu_Start(game, window);
 		NadoMenu_Difficulty_Level(game, window);
 		NadoMenu_Settings(game, window);
 
-		if (Menu_Leader_Board == true) // Menu_Leader_Board
+		if (game.isGame == true)
 		{
-			sortLeaderboard(leaderboard);
-			float y = 330;
-			// Заголовок
-			sf::Text title("===== LEADERBOARD =====", game.font, 24);
-			title.setFillColor(sf::Color::Red);
-			title.setPosition(250, y - 30);
-			window.draw(title);
-
-			const float lineHeight = 30.0f;
-			const int maxLineLen = 28;
-
-			for (size_t i = 0; i < leaderboard.size(); ++i) {
-				std::string line = std::to_string(i + 1) + ". " + leaderboard[i].name;
-				int dotsNeeded = maxLineLen - static_cast<int>(line.length());
-				if (dotsNeeded < 1) dotsNeeded = 1;
-
-				std::string dots(dotsNeeded, '.');
-				std::string fullLine = line + dots + std::to_string(leaderboard[i].score);
-
-				sf::Text text(fullLine, game.font, 20);
-				text.setFillColor(sf::Color::Red);
-				text.setPosition(250, y);
-				window.draw(text);
-
-				y += lineHeight;
-			}
-
-			sf::Text footer("=======================", game.font, 24);
-			footer.setFillColor(sf::Color::Red);
-			footer.setPosition(250, y + 10);
-			window.draw(footer);
-
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::B))
+			if (game.isGamepause == false)
 			{
-				Menu_Leader_Board = false;
-				Menu_Start = true;
-				game.pauseCooldownf.restart();             // сбрасываем таймер
-			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-			{
-				if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
-				{
-					game.selectedIndex--;
-					if (game.selectedIndex < 0)game.selectedIndex = static_cast<int>(Leader_Board.size()) - 1;
-					game.pauseCooldownf.restart();             // сбрасываем таймер
-				}
-			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-			{
-				if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
-				{
-					game.selectedIndex++;
-					if (game.selectedIndex >= static_cast<int>(Leader_Board.size())) game.selectedIndex = 0;
-					game.pauseCooldownf.restart();             // сбрасываем таймер
-				}
-			}
-			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-			{
-				// Тут вызываем нужную логику в зависимости от выбора
-				if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
-				{
-					if (game.selectedIndex == 1) {
-						Menu_Start = true;
-						Menu_Leader_Board = false;
-						game.pauseCooldownf.restart();             // сбрасываем таймер
-					}
-				}
-			}
-
-			for (size_t i = 0; i < Leader_Board.size(); ++i) {
-				sf::Text text(Leader_Board[i], game.font, 25);
-				text.setFillColor(sf::Color(147, 112, 219));
-
-				float y = game.startY + i * game.itemHeight;
-				// Центрируем текст по горизонтали
-				sf::FloatRect textRect = text.getLocalBounds();
-				text.setOrigin(textRect.width / 2.f, textRect.height / 2.f);
-				text.setPosition(window.getSize().x / 2.f, y);
-
-				// Подсветка выбранного пункта
-				if (static_cast<int>(i) == game.selectedIndex) {
-					text.setFillColor(sf::Color(106, 90, 205));
-					// Можно ещё добавить обводку или рамку, если хочется
-				}
-
-				window.draw(text);
+				// TextR
+				sf::Text TextR("<- left, -> right, P-menu", game.font, 15);
+				TextR.setFillColor(sf::Color::White);
+				TextR.setPosition(310, -3.f);
+				window.draw(TextR);
 			}
 		}
-
-		window.draw(scoreLabel);
-		window.draw(scoreValue);
-		window.draw(scoreLabel2);
-		window.draw(scoreValue2);
-
-		// TextR
-		sf::Text TextR("A-left, W-forward, S-backward, D-right, P-menu, tab-leaderboard", game.font, 15);
-		TextR.setFillColor(sf::Color::White);
-		TextR.setPosition(310, -3.f);
-		window.draw(TextR);
 		if (game.name == false)
 		{
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::P))
@@ -277,49 +197,6 @@ int main()
 					game.pauseCooldown.restart();             // сбрасываем таймер
 				}
 			}
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
-		{
-			sf::RectangleShape Blackcube(sf::Vector2f(400.f, 300.f));
-			Blackcube.setFillColor(sf::Color::Black);
-
-			// Центрируем кубик в окне
-			Blackcube.setPosition(SCREEN_WIDTH - 600.f, SCREEN_HEIGHT / 3.5f);
-
-			// Отрисовка кубика
-			window.draw(Blackcube);
-			sortLeaderboard(leaderboard);
-			float y = 230;
-			// Заголовок
-			sf::Text title("===== LEADERBOARD =====", game.font, 24);
-			title.setFillColor(sf::Color::Red);
-			title.setPosition(250, y - 30);
-			window.draw(title);
-
-			const float lineHeight = 30.0f;
-			const int maxLineLen = 28;
-
-			for (size_t i = 0; i < leaderboard.size(); ++i) {
-				std::string line = std::to_string(i + 1) + ". " + leaderboard[i].name;
-				int dotsNeeded = maxLineLen - static_cast<int>(line.length());
-				if (dotsNeeded < 1) dotsNeeded = 1;
-
-				std::string dots(dotsNeeded, '.');
-				std::string fullLine = line + dots + std::to_string(leaderboard[i].score);
-
-				sf::Text text(fullLine, game.font, 20);
-				text.setFillColor(sf::Color::Red);
-				text.setPosition(250, y);
-				window.draw(text);
-
-				y += lineHeight;
-			}
-
-			sf::Text footer("=======================", game.font, 24);
-			footer.setFillColor(sf::Color::Red);
-			footer.setPosition(250, y + 10);
-			window.draw(footer);
 		}
 
 		if (game.isGameFinished == true)
@@ -362,7 +239,7 @@ int main()
 							if (game.selectedIndex == 1) {
 								// Reset backgound
 								game.background.setFillColor(sf::Color::Black);
-								RestartGame(game.back1, game);
+								RestartGame(game);
 								game.pauseCooldownf.restart();             // сбрасываем таймер
 							}
 							else if (game.selectedIndex == 2) {
@@ -439,43 +316,9 @@ int main()
 
 				// Отрисовка кубика
 				window.draw(Blackcube);
-				sortLeaderboard(leaderboard);
 				float y3 = 330;
-				// Заголовок
-				sf::Text title("===== LEADERBOARD =====", game.font, 24);
-				title.setFillColor(sf::Color::Red);
-				title.setPosition(250, y3 - 30);
-				window.draw(title);
 
-				const float lineHeight = 30.0f;
-				const int maxLineLen = 28;
-
-				for (size_t i = 0; i < leaderboard.size(); ++i) {
-					std::string line = std::to_string(i + 1) + ". " + leaderboard[i].name;
-					int dotsNeeded = maxLineLen - static_cast<int>(line.length());
-					if (dotsNeeded < 1) dotsNeeded = 1;
-
-					std::string dots(dotsNeeded, '.');
-					std::string fullLine = line + dots + std::to_string(leaderboard[i].score);
-
-					sf::Text text(fullLine, game.font, 20);
-					text.setFillColor(sf::Color::Red);
-					text.setPosition(250, y3);
-					window.draw(text);
-
-					y3 += lineHeight;
-				}
-
-				sf::Text footer("=======================", game.font, 24);
-				footer.setFillColor(sf::Color::Red);
-				footer.setPosition(250, y3 + 10);
-				window.draw(footer);
-
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::B))
-				{
-
-				}
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 				{
 					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
 					{
@@ -499,14 +342,14 @@ int main()
 					if (game.selectedIndex == 1) {
 						// Reset backgound
 						game.background.setFillColor(sf::Color::Black);
-						RestartGame(game.back1, game);
+						RestartGame(game);
 					}
 					if (game.selectedIndex == 2) {
 						game.isGame = false;
 						game.isGamepause = false;
 						// Reset backgound
 						game.background.setFillColor(sf::Color::Black);
-						RestartGame(game.back1, game);
+						RestartGame(game);
 						Menu_Start = true;
 						Menu_Leader_Board = false;
 						game.pauseCooldownf.restart();             // сбрасываем таймер
@@ -515,7 +358,6 @@ int main()
 						game.saveGame();
 						window.close();
 						break;
-						delete[] game.apples;
 					}
 				}
 				for (size_t i = 0; i < death.size(); ++i) {

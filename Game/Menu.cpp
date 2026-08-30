@@ -56,7 +56,6 @@ void NadoMenu(Game& game, sf::RenderWindow& window)
 				else if (game.selectedIndex == 3) {
 					game.saveGame();
 					window.close();
-					delete[] game.apples;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
 				}
 			}
@@ -110,24 +109,24 @@ void NadoMenu_Start(Game& game, sf::RenderWindow& window)
 			if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
 			{
 				if (game.selectedIndex == 1) {
-					Menu_Difficulty_Level = true;
+					NUM_APPLES = 10;
+					game.PlayerpauseDelayf == 0.5f;
+					game.isGameFinished = true;
+					game.isGame = true;
+					game.timeSinceGameFinish = 0.f;
+					RestartGame(game);
+					game.isGame = true;
 					Menu_Start = false;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
 				}
 				if (game.selectedIndex == 2) {
-					Menu_Leader_Board = true;
-					Menu_Start = false;
-					game.pauseCooldownf.restart();             // сбрасываем таймер
-				}
-				if (game.selectedIndex == 3) {
 					Menu_Settings = true;
 					Menu_Start = false;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
 				}
-				else if (game.selectedIndex == 4) {
+				else if (game.selectedIndex == 3) {
 					game.saveGame();
 					window.close();
-					delete[] game.apples;
 				}
 			}
 		}
@@ -190,7 +189,7 @@ void NadoMenu_Difficulty_Level(Game& game, sf::RenderWindow& window)
 					game.isGameFinished = true;
 					game.isGame = true;
 					game.timeSinceGameFinish = 0.f;
-					RestartGame(game.back1, game);
+					RestartGame(game);
 					game.isGame = true;
 					Menu_Difficulty_Level = false;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
@@ -201,7 +200,7 @@ void NadoMenu_Difficulty_Level(Game& game, sf::RenderWindow& window)
 					game.isGameFinished = true;
 					game.isGame = true;
 					game.timeSinceGameFinish = 0.f;
-					RestartGame(game.back1, game);
+					RestartGame(game);
 					game.isGame = true;
 					Menu_Difficulty_Level = false;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
@@ -212,7 +211,7 @@ void NadoMenu_Difficulty_Level(Game& game, sf::RenderWindow& window)
 					game.isGameFinished = true;
 					game.isGame = true;
 					game.timeSinceGameFinish = 0.f;
-					RestartGame(game.back1, game);
+					RestartGame(game);
 					game.isGame = true;
 					Menu_Difficulty_Level = false;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
@@ -223,7 +222,7 @@ void NadoMenu_Difficulty_Level(Game& game, sf::RenderWindow& window)
 					game.isGameFinished = true;
 					game.isGame = true;
 					game.timeSinceGameFinish = 0.f;
-					RestartGame(game.back1, game);
+					RestartGame(game);
 					game.isGame = true;
 					Menu_Difficulty_Level = false;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
@@ -234,7 +233,7 @@ void NadoMenu_Difficulty_Level(Game& game, sf::RenderWindow& window)
 					game.isGameFinished = true;
 					game.isGame = true;
 					game.timeSinceGameFinish = 0.f;
-					RestartGame(game.back1, game);
+					RestartGame(game);
 					game.isGame = true;
 					Menu_Difficulty_Level = false;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
@@ -346,7 +345,7 @@ void NadoMenu_Settings(Game& game, sf::RenderWindow& window)
 			// Подсветка выбранного пункта
 			if (static_cast<int>(i) == game.selectedIndex) {
 				text.setFillColor(sf::Color(106, 90, 205));
-				// Можно ещё добавить обводку или рамку, если хочется
+				// Можно ещё добавить обводку или рамку, если хочется.
 			}
 
 			window.draw(text);
