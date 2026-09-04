@@ -12,8 +12,8 @@ void RestartGame(Game& game)
 
 	InitPlatform(game.platform, game);
 
-	game.isGameFinished = false;
-	game.timeSinceGameFinish = 0;
+	isGameFinished = false;
+	timeSinceGameFinish = 0;
 }
 
 void InitGame(Game& game)
@@ -37,31 +37,31 @@ void InitGame(Game& game)
 void UpdateGame(Game& game, float deltaTime)
 {
 	Platform platform;
-	if (game.isGame == true)
+	if (isGame == true)
 	{
 		// Update game state
-		if (!game.isGameFinished)
+		if (!isGameFinished)
 		{
-			if (game.isGamepause == false)
+			if (isGamepause == false)
 			{
-				if ((game.platform.position.x - 70.f) <= 0.f)
+				if ((platform.position.x - 70.f) <= 0.f)
 				{
-					game.isTouchingLeft = true;
+					isTouchingLeft = true;
 				}
-				if ((game.platform.position.x + 70.f) >= 800.f)
+				if ((platform.position.x + 70.f) >= 800.f)
 				{
-					game.isTouchingRight = true;
+					isTouchingRight = true;
 				}
 
 				// Handle input
-				if (game.isTouchingRight == false)
+				if (isTouchingRight == false)
 				{
 					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 					{
 						game.platform.direction = PlatformDirection::Right;
 					}
 				}
-				if (game.isTouchingLeft == false)
+				if (isTouchingLeft == false)
 				{
 					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 					{
@@ -69,8 +69,8 @@ void UpdateGame(Game& game, float deltaTime)
 					}
 				}
 
-				game.isTouchingLeft = false;
-				game.isTouchingRight = false;
+				isTouchingLeft = false;
+				isTouchingRight = false;
 
 				// Update player state
 				switch (game.platform.direction)

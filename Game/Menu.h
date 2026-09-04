@@ -44,3 +44,5 @@ void NadoMenu(Game& game, sf::RenderWindow& window);
 void NadoMenu_Start(Game& game, sf::RenderWindow& window);
 void NadoMenu_Difficulty_Level(Game& game, sf::RenderWindow& window);
 void NadoMenu_Settings(Game& game, sf::RenderWindow& window);
+void saveGame();
+bool loadGame();

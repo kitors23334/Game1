@@ -14,12 +14,12 @@
 int main()
 {
 	Game game;
-	game.inputText = "you";
+	inputText = "you";
 	// 1. При старте — пытаемся загрузить
-	game.loadGame(); 
+	loadGame(); 
 
 	game.INtext.setFont(game.font);
-	game.INtext.setString(game.inputText);
+	game.INtext.setString(inputText);
 	game.INtext.setFillColor(sf::Color::White);
 	game.INtext.setCharacterSize(24);
 	game.INtext.setPosition(SCREEN_WIDTH - 570, SCREEN_HEIGHT - 350); // слева сверху
@@ -90,7 +90,7 @@ int main()
 		{
 			if (event.type == sf::Event::Closed)
 			{
-				game.saveGame();
+				saveGame();
 				window.close();
 				break;
 			}
@@ -98,9 +98,9 @@ int main()
 		game.platform.direction = PlatformDirection::Stop;
 		UpdateGame(game, deltaTime);
 
-		if (game.isGame == true)
+		if (isGame == true)
 		{
-			if (game.isGamepause == false)
+			if (isGamepause == false)
 			{
 				ballPos.x += ballSpeedX;
 				ballPos.y += ballSpeedY;
@@ -176,9 +176,9 @@ int main()
 		NadoMenu_Difficulty_Level(game, window);
 		NadoMenu_Settings(game, window);
 
-		if (game.isGame == true)
+		if (isGame == true)
 		{
-			if (game.isGamepause == false)
+			if (isGamepause == false)
 			{
 				// TextR
 				sf::Text TextR("<- left, -> right, P-menu", game.font, 15);
@@ -187,21 +187,21 @@ int main()
 				window.draw(TextR);
 			}
 		}
-		if (game.name == false)
+		if (name == false)
 		{
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::P))
 			{
-				if (game.pauseCooldown.getElapsedTime().asSeconds() >= game.pauseDelay)
+				if (game.pauseCooldown.getElapsedTime().asSeconds() >= pauseDelay)
 				{
-					game.isGamepause = (game.isGamepause ? false : true);
+					isGamepause = (isGamepause ? false : true);
 					game.pauseCooldown.restart();             // сбрасываем таймер
 				}
 			}
 		}
 
-		if (game.isGameFinished == true)
+		if (isGameFinished == true)
 		{
-			if (game.nadoname == true)
+			if (nadoname == true)
 			{
 				sf::RectangleShape Blackcube(sf::Vector2f(450.f, 200.f));
 				Blackcube.setFillColor(sf::Color::Black);
@@ -211,39 +211,39 @@ int main()
 
 				// Отрисовка кубика
 				window.draw(Blackcube);
-				if (game.prename == true)
+				if (prename == true)
 				{
 					if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 					{
-						if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
+						if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
 						{
-							game.selectedIndex--;
-							if (game.selectedIndex < 0) game.selectedIndex = static_cast<int>(death.size()) - 1;
+							selectedIndex--;
+							if (selectedIndex < 0) selectedIndex = static_cast<int>(death.size()) - 1;
 							game.pauseCooldownf.restart();             // сбрасываем таймер
 						}
 					}
 					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 					{
-						if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
+						if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
 						{
-							game.selectedIndex++;
-							if (game.selectedIndex >= static_cast<int>(death.size())) game.selectedIndex = 0;
+							selectedIndex++;
+							if (selectedIndex >= static_cast<int>(death.size())) selectedIndex = 0;
 							game.pauseCooldownf.restart();             // сбрасываем таймер
 						}
 					}
 					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
 					{
-						if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
+						if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
 						{
 							// Тут вызываем нужную логику в зависимости от выбора
-							if (game.selectedIndex == 1) {
+							if (selectedIndex == 1) {
 								// Reset backgound
 								game.background.setFillColor(sf::Color::Black);
 								RestartGame(game);
 								game.pauseCooldownf.restart();             // сбрасываем таймер
 							}
-							else if (game.selectedIndex == 2) {
-								game.name = true;
+							else if (selectedIndex == 2) {
+								name = true;
 								game.pauseCooldownf.restart();             // сбрасываем таймер
 							}
 						}
@@ -252,14 +252,14 @@ int main()
 						sf::Text text(prenameM[i], game.font, 25);
 						text.setFillColor(sf::Color(147, 112, 219));
 
-						float y2 = 200 + i * game.itemHeight;
+						float y2 = 200 + i * itemHeight;
 						// Центрируем текст по горизонтали
 						sf::FloatRect textRect = text.getLocalBounds();
 						text.setOrigin(textRect.width / 2.f, textRect.height / 2.f);
 						text.setPosition(window.getSize().x / 2.f, y2);
 
 						// Подсветка выбранного пункта
-						if (static_cast<int>(i) == game.selectedIndex) {
+						if (static_cast<int>(i) == selectedIndex) {
 							text.setFillColor(sf::Color(106, 90, 205));
 							// Можно ещё добавить обводку или рамку, если хочется
 						}
@@ -267,37 +267,37 @@ int main()
 						window.draw(text);
 					}
 				}
-				if (game.name == true)
+				if (name == true)
 				{
-					game.prename = false;
+					prename = false;
 					// Textx
 					sf::Text TextX("Use keyboard to type", game.font, 25);
 					TextX.setFillColor(sf::Color::Yellow);
 					TextX.setPosition(SCREEN_WIDTH - 590, SCREEN_HEIGHT - 380); // слева сверху
 					window.draw(TextX);
 
-					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
+					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
 					{
 						// Сюда попадает именно символ (удобнее, чем KeyPressed для ввода текста)
 						if (event.type == sf::Event::TextEntered) {
 							// Пропускаем спецсимволы, которые не хотим видеть
 							if (event.text.unicode >= 32 && event.text.unicode < 127) {
-								game.inputText += static_cast<char>(event.text.unicode);
+								inputText += static_cast<char>(event.text.unicode);
 							}
 							// Backspace
 							else if (event.text.unicode == 8) { // 8 — это backspace
-								if (!game.inputText.empty())
-									game.inputText.pop_back();
+								if (!inputText.empty())
+									inputText.pop_back();
 							}
 
 							// Обновляем текст на экране
-							game.INtext.setString(game.inputText);
+							game.INtext.setString(inputText);
 							game.pauseCooldownf.restart();             // сбрасываем таймер
 						}
 						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
 						{
-							game.name = false;
-							game.nadoname = false;
+							name = false;
+							nadoname = false;
 							game.pauseCooldownf.restart();             // сбрасываем таймер
 
 						}
@@ -306,7 +306,7 @@ int main()
 				}
 			}
 
-			if (game.nadoname == false)
+			if (nadoname == false)
 			{
 				sf::RectangleShape Blackcube(sf::Vector2f(550.f, 500.f));
 				Blackcube.setFillColor(sf::Color::Black);
@@ -320,33 +320,33 @@ int main()
 
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 				{
-					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
+					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
 					{
-						game.selectedIndex--;
-						if (game.selectedIndex < 0) game.selectedIndex = static_cast<int>(death.size()) - 1;
+						selectedIndex--;
+						if (selectedIndex < 0) selectedIndex = static_cast<int>(death.size()) - 1;
 						game.pauseCooldownf.restart();             // сбрасываем таймер
 					}
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 				{
-					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= game.pauseDelayf)
+					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
 					{
-						game.selectedIndex++;
-						if (game.selectedIndex >= static_cast<int>(death.size())) game.selectedIndex = 0;
+						selectedIndex++;
+						if (selectedIndex >= static_cast<int>(death.size())) selectedIndex = 0;
 						game.pauseCooldownf.restart();             // сбрасываем таймер
 					}
 				}
 				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
 				{
 					// Тут вызываем нужную логику в зависимости от выбора
-					if (game.selectedIndex == 1) {
+					if (selectedIndex == 1) {
 						// Reset backgound
 						game.background.setFillColor(sf::Color::Black);
 						RestartGame(game);
 					}
-					if (game.selectedIndex == 2) {
-						game.isGame = false;
-						game.isGamepause = false;
+					if (selectedIndex == 2) {
+						isGame = false;
+						isGamepause = false;
 						// Reset backgound
 						game.background.setFillColor(sf::Color::Black);
 						RestartGame(game);
@@ -354,8 +354,8 @@ int main()
 						Menu_Leader_Board = false;
 						game.pauseCooldownf.restart();             // сбрасываем таймер
 					}
-					else if (game.selectedIndex == 3) {
-						game.saveGame();
+					else if (selectedIndex == 3) {
+						saveGame();
 						window.close();
 						break;
 					}
@@ -364,14 +364,14 @@ int main()
 					sf::Text text(death[i], game.font, 25);
 					text.setFillColor(sf::Color(147, 112, 219));
 
-					float y2 = 100 + i * game.itemHeight;
+					float y2 = 100 + i * itemHeight;
 					// Центрируем текст по горизонтали
 					sf::FloatRect textRect = text.getLocalBounds();
 					text.setOrigin(textRect.width / 2.f, textRect.height / 2.f);
 					text.setPosition(window.getSize().x / 2.f, y2);
 
 					// Подсветка выбранного пункта
-					if (static_cast<int>(i) == game.selectedIndex) {
+					if (static_cast<int>(i) == selectedIndex) {
 						text.setFillColor(sf::Color(106, 90, 205));
 						// Можно ещё добавить обводку или рамку, если хочется
 					}
