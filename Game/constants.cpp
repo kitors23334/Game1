@@ -8,6 +8,7 @@ std::string inputText;
 
 int NUM_APPLES = 100;
 int Volume = 50;
+int score = 0;
 
 int selectedIndex = 0;
 int Precount = 0;
@@ -16,6 +17,7 @@ bool Menu_Start = true;
 bool Menu_Difficulty_Level = false;
 bool Menu_Leader_Board = false;
 bool Menu_Settings = false;
+bool deathfa = false;
 bool music = true;
 bool sounds = true;
 

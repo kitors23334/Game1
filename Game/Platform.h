@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Constants.h"
 #include "Math.h"
+#include "GameObject.h"
 
 enum class PlatformDirection
 {

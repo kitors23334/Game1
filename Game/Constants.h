@@ -28,6 +28,7 @@ extern std::string inputText;
 extern int Volume;
 const int Const_NUM_APPLES = 100;
 extern int NUM_APPLES;
+extern int score;
 
 extern int selectedIndex;
 extern int Precount;
@@ -38,6 +39,7 @@ extern bool Menu_Leader_Board;
 extern bool Menu_Settings;
 extern bool music;
 extern bool sounds;
+extern bool deathfa;
 
 extern bool isGameFinished;
 extern bool isGame;

@@ -4,12 +4,34 @@
 #include "Constants.h"
 #include "Math.h"
 #include "Platform.h"
+#include "Cube.h"
 #include <fstream>
 
-class GameState
-{
+
+class GameState {
 public:
-	// У меня нет динамических массивов
+    Cube** cubes;
+    int cubeCount;
+    GameState(int count)
+        : cubeCount(count)
+    {
+        cubes = new Cube * [cubeCount];
+        for (int i = 0; i < cubeCount; ++i) {
+            cubes[i] = new Cube();
+        }
+    }
+
+    ~GameState() {
+        for (int i = 0; i < cubeCount; ++i) {
+            delete cubes[i];
+            cubes[i] = nullptr;
+        }
+        delete[] cubes;
+        cubes = nullptr;
+    }
+
+    GameState(const GameState&) = delete;
+    GameState& operator=(const GameState&) = delete;
 };
 
 class Game
@@ -20,6 +42,8 @@ public:
 	sf::Font font;
 
 	Platform platform;
+
+	Cube cube;
 
 	sf::RectangleShape background;
 

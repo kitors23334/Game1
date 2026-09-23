@@ -15,7 +15,6 @@ const std::vector<std::wstring> options = {
 const std::vector<std::wstring> menu = {
 	L"Enter = choose, W = up, S = down",
 	L"Start game",// Difficulty level
-	L"settings",
 	L"EXIT"
 };
 const std::vector<std::wstring> Difficulty_Level = {
@@ -29,8 +28,7 @@ const std::vector<std::wstring> Difficulty_Level = {
 };
 const std::vector<std::wstring> death = {
 	L"Enter = choose, W = up, S = down",
-	L"Start game",
-	L"Main Menu",
+	L"restart game",
 	L"EXIT"
 };
 const std::vector<std::wstring> prenameM = {

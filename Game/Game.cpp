@@ -19,8 +19,6 @@ void RestartGame(Game& game)
 void InitGame(Game& game)
 {
 	InitPlatform(game.platform, game);
-	int seed = (int)time(nullptr);
-	srand(seed);
 
 	assert(game.playerTexture.loadFromFile(RESOURCES_PATH + "\\Player.png"));
 	if (!game.DeathSoundbuffer.loadFromFile(RESOURCES_PATH + "\\Death.wav")) {
@@ -39,53 +37,41 @@ void UpdateGame(Game& game, float deltaTime)
 	Platform platform;
 	if (isGame == true)
 	{
-		// Update game state
-		if (!isGameFinished)
+		if (isGamepause == false)
 		{
-			if (isGamepause == false)
+
+			// Handle input
+			if (isTouchingRight == false)
 			{
-				if ((platform.position.x - 70.f) <= 0.f)
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 				{
-					isTouchingLeft = true;
+					game.platform.direction = PlatformDirection::Right;
 				}
-				if ((platform.position.x + 70.f) >= 800.f)
+			}
+			if (isTouchingLeft == false)
+			{
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 				{
-					isTouchingRight = true;
+					game.platform.direction = PlatformDirection::Left;
 				}
+			}
 
-				// Handle input
-				if (isTouchingRight == false)
-				{
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-					{
-						game.platform.direction = PlatformDirection::Right;
-					}
-				}
-				if (isTouchingLeft == false)
-				{
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-					{
-						game.platform.direction = PlatformDirection::Left;
-					}
-				}
+			isTouchingLeft = false;
+			isTouchingRight = false;
 
-				isTouchingLeft = false;
-				isTouchingRight = false;
-
-				// Update player state
-				switch (game.platform.direction)
-				{
-					case PlatformDirection::Right:
-					{
-						game.platform.position.x += game.platform.speed * deltaTime;
-						break;
-					}
-					case PlatformDirection::Left:
-					{
-						game.platform.position.x -= game.platform.speed * deltaTime;
-						break;
-					}
-				}
+			// Update player state
+			switch (game.platform.direction)
+			{
+			case PlatformDirection::Right:
+			{
+				game.platform.position.x += game.platform.speed * deltaTime;
+				break;
+			}
+			case PlatformDirection::Left:
+			{
+				game.platform.position.x -= game.platform.speed * deltaTime;
+				break;
+			}
 			}
 		}
 	}

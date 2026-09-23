@@ -164,11 +164,6 @@ void NadoMenu_Start(Game& game, sf::RenderWindow& window)
 					Menu_Start = false;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
 				}
-				if (selectedIndex == 2) {
-					Menu_Settings = true;
-					Menu_Start = false;
-					game.pauseCooldownf.restart();             // сбрасываем таймер
-				}
 				else if (selectedIndex == 3) {
 					saveGame();
 					window.close();

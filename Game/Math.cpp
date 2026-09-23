@@ -3,50 +3,51 @@
 #include <SFML/Graphics.hpp>
 #include "Game.h"
 
-Position2D GetRandomPositionInScreen(float screenWidth, float screenHeight)
-{
-    Game game;
-    int cellsX = static_cast<int>(screenWidth / Size_Kletko);
-    int cellsY = static_cast<int>(screenHeight / Size_Kletko);
 
-    if (cellsX <= 0 || cellsY <= 0) {
-        return Position2D{ 0.f, 0.f };
-    }
+Position2D GetRandomPositionInScreen(
+    float screenWidth, float screenHeight,
+    const std::vector<Position2D>& occupied,
+    float cubeSize
+) {
+    const float bottomMargin = 160.f;   // отступ снизу
+    const float edgeMargin = 20.f;     // отступ от левого/правого/верхнего края
 
-    int safeTopRows = 0;
+    float minX = edgeMargin + cubeSize / 2.f;
+    float maxX = screenWidth - edgeMargin - cubeSize / 2.f;
 
-    if (safeTopRows >= cellsY) {
-        safeTopRows = 1;
-    }
+    float minY = edgeMargin + cubeSize / 2.f;
+    float maxY = screenHeight - bottomMargin - cubeSize / 2.f;
 
-    int maxAttempts = cellsX * cellsY * 2;
-    int attempts = 0;
+    if (minX >= maxX) minX = 0.f, maxX = screenWidth - cubeSize;
+    if (minY >= maxY) minY = 0.f, maxY = screenHeight - bottomMargin - cubeSize;
 
-    Position2D result;
+    int rangeX = static_cast<int>(maxX - minX);
+    int rangeY = static_cast<int>(maxY - minY);
 
-    do {
-        int randomCellX = std::rand() % cellsX;
+    if (rangeX <= 0) rangeX = 1;
+    if (rangeY <= 0) rangeY = 1;
 
-        int randomCellY = (std::rand() % (cellsY - safeTopRows)) + safeTopRows;
+    const int maxAttempts = 500;
+    for (int i = 0; i < maxAttempts; ++i) {
+        float x = minX + static_cast<float>(rand() % rangeX);
+        float y = minY + static_cast<float>(rand() % rangeY);
 
-        result.x = (randomCellX * Size_Kletko) + (Size_Kletko / 2.0f);
-        result.y = (randomCellY * Size_Kletko) + (Size_Kletko / 1.1f);
-
-        bool isOccupied = false;
-
-        attempts++;
-
-        if (!isOccupied || attempts >= maxAttempts) {
-            break;
+        bool isFree = true;
+        for (const auto& p : occupied) {
+            float dx = x - p.x;
+            float dy = y - p.y;
+            if (dx * dx + dy * dy < (cubeSize * cubeSize)) {
+                isFree = false;
+                break;
+            }
         }
 
-    } while (true);
-
-    if (attempts >= maxAttempts) {
-        return Position2D{ 0.f, 0.f };
+        if (isFree) {
+            return Position2D{ x, y };
+        }
     }
 
-    return result;
+    return Position2D{ (screenWidth - cubeSize) / 2.f, (screenHeight - bottomMargin - cubeSize) / 2.f };
 }
 
 bool IsRectanglesCollide(Position2D rect1Position, Vector2D rect1Size, Position2D rect2Position, Vector2D rect2Size)

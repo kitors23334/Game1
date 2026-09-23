@@ -10,19 +10,20 @@
 #include <fstream>
 #include <string>
 #include "Menu.h"
+#include "Cube.h"
 
 int main()
 {
+	srand(static_cast<unsigned int>(time(nullptr)));
 	Game game;
-	inputText = "you";
 	// 1. При старте — пытаемся загрузить
 	loadGame(); 
 
-	game.INtext.setFont(game.font);
-	game.INtext.setString(inputText);
-	game.INtext.setFillColor(sf::Color::White);
-	game.INtext.setCharacterSize(24);
-	game.INtext.setPosition(SCREEN_WIDTH - 570, SCREEN_HEIGHT - 350); // слева сверху
+	GameState state(10);
+	//cube
+	for (int i = 0; i < state.cubeCount; ++i) {
+		InitCube(*state.cubes[i], game);
+	}
 
 	// --- Шарик ---
 	float ballRadius = 15.f;
@@ -50,13 +51,11 @@ int main()
 	scoreValue2.setFillColor(sf::Color::Yellow);
 	scoreValue2.setPosition(165.f, -3.f); // чуть ниже надписи "Score"
 
-	int seed = static_cast<int>(time(nullptr));
-	srand(seed);
-
 	// Init window
 	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Apples game!");
 
 	// Game initialization
+	InitCube(game.cube ,game);
 	InitGame(game);
 
 	// Init game clocks
@@ -96,6 +95,16 @@ int main()
 			}
 		}
 		game.platform.direction = PlatformDirection::Stop;
+
+		if ((game.platform.position.x - 60.f) <= 0.f)
+		{
+			isTouchingLeft = true;
+		}
+		if ((game.platform.position.x + 60.f) >= 800.f)
+		{
+			isTouchingRight = true;
+		}
+
 		UpdateGame(game, deltaTime);
 
 		if (isGame == true)
@@ -153,17 +162,66 @@ int main()
 					ballPos.x += nx * overlap;
 					ballPos.y += ny * overlap;
 
-					// V_new = V_old - 2 * (V_old · N) * N
 					float dot = ballSpeedX * nx + ballSpeedY * ny;
 					ballSpeedX -= 2.f * dot * nx;
 					ballSpeedY -= 2.f * dot * ny;
 				}
+
+				// === ОТСКОК ОТ КУБОВ + УДАЛЕНИЕ + СЧЁТ ===
+				for (int i = 0; i < state.cubeCount; ++i) {
+					if (!state.cubes[i]->active)
+						continue;
+
+					sf::FloatRect cubeBounds = state.cubes[i]->CubeOb.getGlobalBounds();
+
+					closestX = ballPos.x;
+					closestY = ballPos.y;
+
+					if (closestX < cubeBounds.left)
+						closestX = cubeBounds.left;
+					else if (closestX > cubeBounds.left + cubeBounds.width)
+						closestX = cubeBounds.left + cubeBounds.width;
+
+					if (closestY < cubeBounds.top)
+						closestY = cubeBounds.top;
+					else if (closestY > cubeBounds.top + cubeBounds.height)
+						closestY = cubeBounds.top + cubeBounds.height;
+
+					dx = ballPos.x - closestX;
+					dy = ballPos.y - closestY;
+					distSq = dx * dx + dy * dy;
+
+					if (distSq < ballRadius * ballRadius) {
+						float dist = std::sqrt(distSq);
+						if (dist == 0.f) dist = 0.0001f;
+
+						float nx = dx / dist;
+						float ny = dy / dist;
+
+						float overlap = ballRadius - dist;
+						ballPos.x += nx * overlap;
+						ballPos.y += ny * overlap;
+
+						float dot = ballSpeedX * nx + ballSpeedY * ny;
+						ballSpeedX -= 2.f * dot * nx;
+						ballSpeedY -= 2.f * dot * ny;
+
+						state.cubes[i]->active = false;
+						score++;
+					}
+				}
+
 			}
 		}
 
 		// Draw game
 		window.clear();
 		DrawGame(game, window);
+
+		//cube
+		for (int i = 0; i < state.cubeCount; ++i) {
+			DrawCube(*state.cubes[i], window);
+		}
 
 		// Рисуем шарик
 		sf::CircleShape ball(ballRadius);
@@ -176,6 +234,85 @@ int main()
 		NadoMenu_Difficulty_Level(game, window);
 		NadoMenu_Settings(game, window);
 
+		if (deathfa == true) // Menu_Settings
+		{
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::B))
+			{
+				Menu_Settings = false;
+				Menu_Start = true;
+				game.pauseCooldownf.restart();             // сбрасываем таймер
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+			{
+				if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
+				{
+					selectedIndex--;
+					if (selectedIndex < 0) selectedIndex = static_cast<int>(Difficulty_Level.size()) - 1;
+					game.pauseCooldownf.restart();             // сбрасываем таймер
+				}
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			{
+				if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
+				{
+					selectedIndex++;
+					if (selectedIndex >= static_cast<int>(Difficulty_Level.size())) selectedIndex = 0;
+					game.pauseCooldownf.restart();             // сбрасываем таймер
+				}
+			}
+			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+			{
+				// Тут вызываем нужную логику в зависимости от выбора
+				if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
+				{
+					if (selectedIndex == 1) {
+						for (int i = 0; i < state.cubeCount; ++i) {
+							if (state.cubes[i] != nullptr) {
+								delete state.cubes[i];
+								state.cubes[i] = nullptr; 
+							}
+						}
+						state.cubeCount = 10;
+						for (int i = 0; i < state.cubeCount; ++i) {
+							state.cubes[i] = new Cube();
+						}
+						for (int i = 0; i < state.cubeCount; ++i) {
+							InitCube(*state.cubes[i], game);
+						}
+						game.pauseCooldownf.restart();
+						score = 0;
+						deathfa = false;
+					}
+					else if (selectedIndex == 2) {
+						saveGame();
+						window.close();
+					}
+					if (selectedIndex == 2) {
+						saveGame();
+						window.close();
+					}
+				}
+			}
+			for (size_t i = 0; i < death.size(); ++i) {
+				sf::Text text(death[i], game.font, 25);
+				text.setFillColor(sf::Color(147, 112, 219));
+
+				float y = startY + i * itemHeight;
+				// Центрируем текст по горизонтали
+				sf::FloatRect textRect = text.getLocalBounds();
+				text.setOrigin(textRect.width / 2.f, textRect.height / 2.f);
+				text.setPosition(window.getSize().x / 2.f, y);
+
+				// Подсветка выбранного пункта
+				if (static_cast<int>(i) == selectedIndex) {
+					text.setFillColor(sf::Color(106, 90, 205));
+					// Можно ещё добавить обводку или рамку, если хочется.
+				}
+
+				window.draw(text);
+			}
+		}
+
 		if (isGame == true)
 		{
 			if (isGamepause == false)
@@ -187,202 +324,10 @@ int main()
 				window.draw(TextR);
 			}
 		}
-		if (name == false)
+		if (score >= 10 )
 		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::P))
-			{
-				if (game.pauseCooldown.getElapsedTime().asSeconds() >= pauseDelay)
-				{
-					isGamepause = (isGamepause ? false : true);
-					game.pauseCooldown.restart();             // сбрасываем таймер
-				}
-			}
+			deathfa = true;
 		}
-
-		if (isGameFinished == true)
-		{
-			if (nadoname == true)
-			{
-				sf::RectangleShape Blackcube(sf::Vector2f(450.f, 200.f));
-				Blackcube.setFillColor(sf::Color::Black);
-
-				// Центрируем кубик в окне
-				Blackcube.setPosition(SCREEN_WIDTH - 623.f, SCREEN_HEIGHT - 440);
-
-				// Отрисовка кубика
-				window.draw(Blackcube);
-				if (prename == true)
-				{
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-					{
-						if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
-						{
-							selectedIndex--;
-							if (selectedIndex < 0) selectedIndex = static_cast<int>(death.size()) - 1;
-							game.pauseCooldownf.restart();             // сбрасываем таймер
-						}
-					}
-					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-					{
-						if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
-						{
-							selectedIndex++;
-							if (selectedIndex >= static_cast<int>(death.size())) selectedIndex = 0;
-							game.pauseCooldownf.restart();             // сбрасываем таймер
-						}
-					}
-					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-					{
-						if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
-						{
-							// Тут вызываем нужную логику в зависимости от выбора
-							if (selectedIndex == 1) {
-								// Reset backgound
-								game.background.setFillColor(sf::Color::Black);
-								RestartGame(game);
-								game.pauseCooldownf.restart();             // сбрасываем таймер
-							}
-							else if (selectedIndex == 2) {
-								name = true;
-								game.pauseCooldownf.restart();             // сбрасываем таймер
-							}
-						}
-					}
-					for (size_t i = 0; i < prenameM.size(); ++i) {
-						sf::Text text(prenameM[i], game.font, 25);
-						text.setFillColor(sf::Color(147, 112, 219));
-
-						float y2 = 200 + i * itemHeight;
-						// Центрируем текст по горизонтали
-						sf::FloatRect textRect = text.getLocalBounds();
-						text.setOrigin(textRect.width / 2.f, textRect.height / 2.f);
-						text.setPosition(window.getSize().x / 2.f, y2);
-
-						// Подсветка выбранного пункта
-						if (static_cast<int>(i) == selectedIndex) {
-							text.setFillColor(sf::Color(106, 90, 205));
-							// Можно ещё добавить обводку или рамку, если хочется
-						}
-
-						window.draw(text);
-					}
-				}
-				if (name == true)
-				{
-					prename = false;
-					// Textx
-					sf::Text TextX("Use keyboard to type", game.font, 25);
-					TextX.setFillColor(sf::Color::Yellow);
-					TextX.setPosition(SCREEN_WIDTH - 590, SCREEN_HEIGHT - 380); // слева сверху
-					window.draw(TextX);
-
-					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
-					{
-						// Сюда попадает именно символ (удобнее, чем KeyPressed для ввода текста)
-						if (event.type == sf::Event::TextEntered) {
-							// Пропускаем спецсимволы, которые не хотим видеть
-							if (event.text.unicode >= 32 && event.text.unicode < 127) {
-								inputText += static_cast<char>(event.text.unicode);
-							}
-							// Backspace
-							else if (event.text.unicode == 8) { // 8 — это backspace
-								if (!inputText.empty())
-									inputText.pop_back();
-							}
-
-							// Обновляем текст на экране
-							game.INtext.setString(inputText);
-							game.pauseCooldownf.restart();             // сбрасываем таймер
-						}
-						if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-						{
-							name = false;
-							nadoname = false;
-							game.pauseCooldownf.restart();             // сбрасываем таймер
-
-						}
-					}
-					window.draw(game.INtext);
-				}
-			}
-
-			if (nadoname == false)
-			{
-				sf::RectangleShape Blackcube(sf::Vector2f(550.f, 500.f));
-				Blackcube.setFillColor(sf::Color::Black);
-
-				// Центрируем кубик в окне
-				Blackcube.setPosition(SCREEN_WIDTH - 675.f, SCREEN_HEIGHT - 540);
-
-				// Отрисовка кубика
-				window.draw(Blackcube);
-				float y3 = 330;
-
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-				{
-					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
-					{
-						selectedIndex--;
-						if (selectedIndex < 0) selectedIndex = static_cast<int>(death.size()) - 1;
-						game.pauseCooldownf.restart();             // сбрасываем таймер
-					}
-				}
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-				{
-					if (game.pauseCooldownf.getElapsedTime().asSeconds() >= pauseDelayf)
-					{
-						selectedIndex++;
-						if (selectedIndex >= static_cast<int>(death.size())) selectedIndex = 0;
-						game.pauseCooldownf.restart();             // сбрасываем таймер
-					}
-				}
-				else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-				{
-					// Тут вызываем нужную логику в зависимости от выбора
-					if (selectedIndex == 1) {
-						// Reset backgound
-						game.background.setFillColor(sf::Color::Black);
-						RestartGame(game);
-					}
-					if (selectedIndex == 2) {
-						isGame = false;
-						isGamepause = false;
-						// Reset backgound
-						game.background.setFillColor(sf::Color::Black);
-						RestartGame(game);
-						Menu_Start = true;
-						Menu_Leader_Board = false;
-						game.pauseCooldownf.restart();             // сбрасываем таймер
-					}
-					else if (selectedIndex == 3) {
-						saveGame();
-						window.close();
-						break;
-					}
-				}
-				for (size_t i = 0; i < death.size(); ++i) {
-					sf::Text text(death[i], game.font, 25);
-					text.setFillColor(sf::Color(147, 112, 219));
-
-					float y2 = 100 + i * itemHeight;
-					// Центрируем текст по горизонтали
-					sf::FloatRect textRect = text.getLocalBounds();
-					text.setOrigin(textRect.width / 2.f, textRect.height / 2.f);
-					text.setPosition(window.getSize().x / 2.f, y2);
-
-					// Подсветка выбранного пункта
-					if (static_cast<int>(i) == selectedIndex) {
-						text.setFillColor(sf::Color(106, 90, 205));
-						// Можно ещё добавить обводку или рамку, если хочется
-					}
-
-					window.draw(text);
-				}
-
-
-			}
-		}
-
 		window.display();
 	}
 	// Deinitialization
