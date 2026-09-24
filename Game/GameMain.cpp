@@ -111,85 +111,47 @@ int main()
 		{
 			if (isGamepause == false)
 			{
-				ballPos.x += ballSpeedX;
-				ballPos.y += ballSpeedY;
+				if (deathfa == false)
+				{
+					ballPos.x += ballSpeedX;
+					ballPos.y += ballSpeedY;
 
-				if (ballPos.x - ballRadius <= 0.f) {
-					ballPos.x = ballRadius;
-					ballSpeedX = -ballSpeedX;
-				}
-				else if (ballPos.x + ballRadius >= SCREEN_WIDTH) {
-					ballPos.x = SCREEN_WIDTH - ballRadius;
-					ballSpeedX = -ballSpeedX;
-				}
+					if (ballPos.x - ballRadius <= 0.f) {
+						ballPos.x = ballRadius;
+						ballSpeedX = -ballSpeedX;
+					}
+					else if (ballPos.x + ballRadius >= SCREEN_WIDTH) {
+						ballPos.x = SCREEN_WIDTH - ballRadius;
+						ballSpeedX = -ballSpeedX;
+					}
 
-				if (ballPos.y - ballRadius <= 0.f) {
-					ballPos.y = ballRadius;
-					ballSpeedY = -ballSpeedY;
-				}
-				else if (ballPos.y + ballRadius >= SCREEN_HEIGHT) {
-					ballPos.y = SCREEN_HEIGHT - ballRadius;
-					ballSpeedY = -ballSpeedY;
-				}
+					if (ballPos.y - ballRadius <= 0.f) {
+						ballPos.y = ballRadius;
+						ballSpeedY = -ballSpeedY;
+					}
+					else if (ballPos.y + ballRadius >= SCREEN_HEIGHT) {
+						ballPos.y = SCREEN_HEIGHT - ballRadius;
+						ballSpeedY = -ballSpeedY;
+					}
 
-				sf::FloatRect platformBounds = game.platform.PlatformOb.getGlobalBounds();
+					sf::FloatRect platformBounds = game.platform.PlatformOb.getGlobalBounds();
 
-				float closestX = ballPos.x;
-				float closestY = ballPos.y;
+					float closestX = ballPos.x;
+					float closestY = ballPos.y;
 
-				if (closestX < platformBounds.left)
-					closestX = platformBounds.left;
-				else if (closestX > platformBounds.left + platformBounds.width)
-					closestX = platformBounds.left + platformBounds.width;
+					if (closestX < platformBounds.left)
+						closestX = platformBounds.left;
+					else if (closestX > platformBounds.left + platformBounds.width)
+						closestX = platformBounds.left + platformBounds.width;
 
-				if (closestY < platformBounds.top)
-					closestY = platformBounds.top;
-				else if (closestY > platformBounds.top + platformBounds.height)
-					closestY = platformBounds.top + platformBounds.height;
+					if (closestY < platformBounds.top)
+						closestY = platformBounds.top;
+					else if (closestY > platformBounds.top + platformBounds.height)
+						closestY = platformBounds.top + platformBounds.height;
 
-				float dx = ballPos.x - closestX;
-				float dy = ballPos.y - closestY;
-				float distSq = dx * dx + dy * dy;
-
-				if (distSq < ballRadius * ballRadius) {
-					float dist = std::sqrt(distSq);
-					if (dist == 0.f) dist = 0.0001f;
-
-					float nx = dx / dist;
-					float ny = dy / dist;
-
-					float overlap = ballRadius - dist;
-					ballPos.x += nx * overlap;
-					ballPos.y += ny * overlap;
-
-					float dot = ballSpeedX * nx + ballSpeedY * ny;
-					ballSpeedX -= 2.f * dot * nx;
-					ballSpeedY -= 2.f * dot * ny;
-				}
-
-				// === ОТСКОК ОТ КУБОВ + УДАЛЕНИЕ + СЧЁТ ===
-				for (int i = 0; i < state.cubeCount; ++i) {
-					if (!state.cubes[i]->active)
-						continue;
-
-					sf::FloatRect cubeBounds = state.cubes[i]->CubeOb.getGlobalBounds();
-
-					closestX = ballPos.x;
-					closestY = ballPos.y;
-
-					if (closestX < cubeBounds.left)
-						closestX = cubeBounds.left;
-					else if (closestX > cubeBounds.left + cubeBounds.width)
-						closestX = cubeBounds.left + cubeBounds.width;
-
-					if (closestY < cubeBounds.top)
-						closestY = cubeBounds.top;
-					else if (closestY > cubeBounds.top + cubeBounds.height)
-						closestY = cubeBounds.top + cubeBounds.height;
-
-					dx = ballPos.x - closestX;
-					dy = ballPos.y - closestY;
-					distSq = dx * dx + dy * dy;
+					float dx = ballPos.x - closestX;
+					float dy = ballPos.y - closestY;
+					float distSq = dx * dx + dy * dy;
 
 					if (distSq < ballRadius * ballRadius) {
 						float dist = std::sqrt(distSq);
@@ -205,12 +167,53 @@ int main()
 						float dot = ballSpeedX * nx + ballSpeedY * ny;
 						ballSpeedX -= 2.f * dot * nx;
 						ballSpeedY -= 2.f * dot * ny;
-
-						state.cubes[i]->active = false;
-						score++;
 					}
-				}
 
+					// === ОТСКОК ОТ КУБОВ + УДАЛЕНИЕ + СЧЁТ ===
+					for (int i = 0; i < state.cubeCount; ++i) {
+						if (!state.cubes[i]->active)
+							continue;
+
+						sf::FloatRect cubeBounds = state.cubes[i]->CubeOb.getGlobalBounds();
+
+						closestX = ballPos.x;
+						closestY = ballPos.y;
+
+						if (closestX < cubeBounds.left)
+							closestX = cubeBounds.left;
+						else if (closestX > cubeBounds.left + cubeBounds.width)
+							closestX = cubeBounds.left + cubeBounds.width;
+
+						if (closestY < cubeBounds.top)
+							closestY = cubeBounds.top;
+						else if (closestY > cubeBounds.top + cubeBounds.height)
+							closestY = cubeBounds.top + cubeBounds.height;
+
+						dx = ballPos.x - closestX;
+						dy = ballPos.y - closestY;
+						distSq = dx * dx + dy * dy;
+
+						if (distSq < ballRadius * ballRadius) {
+							float dist = std::sqrt(distSq);
+							if (dist == 0.f) dist = 0.0001f;
+
+							float nx = dx / dist;
+							float ny = dy / dist;
+
+							float overlap = ballRadius - dist;
+							ballPos.x += nx * overlap;
+							ballPos.y += ny * overlap;
+
+							float dot = ballSpeedX * nx + ballSpeedY * ny;
+							ballSpeedX -= 2.f * dot * nx;
+							ballSpeedY -= 2.f * dot * ny;
+
+							state.cubes[i]->active = false;
+							score++;
+						}
+					}
+
+				}
 			}
 		}
 
@@ -272,6 +275,11 @@ int main()
 								state.cubes[i] = nullptr; 
 							}
 						}
+						ballPos.x = SCREEN_WIDTH / 2.f;
+						ballPos.y = 100.f;
+						ballSpeedX = 0.2f;
+						ballSpeedY = 0.1f;
+						game.platform.position = { SCREEN_WIDTH / 2.f, SCREEN_HEIGHT - 100.f };
 						state.cubeCount = 10;
 						for (int i = 0; i < state.cubeCount; ++i) {
 							state.cubes[i] = new Cube();

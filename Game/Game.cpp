@@ -39,39 +39,41 @@ void UpdateGame(Game& game, float deltaTime)
 	{
 		if (isGamepause == false)
 		{
-
-			// Handle input
-			if (isTouchingRight == false)
+			if (deathfa == false)
 			{
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+				// Handle input
+				if (isTouchingRight == false)
 				{
-					game.platform.direction = PlatformDirection::Right;
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+					{
+						game.platform.direction = PlatformDirection::Right;
+					}
 				}
-			}
-			if (isTouchingLeft == false)
-			{
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+				if (isTouchingLeft == false)
 				{
-					game.platform.direction = PlatformDirection::Left;
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+					{
+						game.platform.direction = PlatformDirection::Left;
+					}
 				}
-			}
 
-			isTouchingLeft = false;
-			isTouchingRight = false;
+				isTouchingLeft = false;
+				isTouchingRight = false;
 
-			// Update player state
-			switch (game.platform.direction)
-			{
-			case PlatformDirection::Right:
-			{
-				game.platform.position.x += game.platform.speed * deltaTime;
-				break;
-			}
-			case PlatformDirection::Left:
-			{
-				game.platform.position.x -= game.platform.speed * deltaTime;
-				break;
-			}
+				// Update player state
+				switch (game.platform.direction)
+				{
+				case PlatformDirection::Right:
+				{
+					game.platform.position.x += game.platform.speed * deltaTime;
+					break;
+				}
+				case PlatformDirection::Left:
+				{
+					game.platform.position.x -= game.platform.speed * deltaTime;
+					break;
+				}
+				}
 			}
 		}
 	}

@@ -2,13 +2,10 @@
 #include "Game.h"
 
 void InitCube(Cube& cube, Game& game) {
-    float minX = 20.f;
-    float maxX = static_cast<float>(SCREEN_WIDTH) - 20.f;
-    float minY = 20.f;
-    float maxY = static_cast<float>(SCREEN_HEIGHT) - 100.f;
+    Position2D randomPos = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    cube.position.x = minX + static_cast<float>(rand() % static_cast<int>(maxX - minX));
-    cube.position.y = minY + static_cast<float>(rand() % static_cast<int>(maxY - minY));
+    cube.position.x = randomPos.x;
+    cube.position.y = randomPos.y;
 
     cube.CubeOb.setSize(sf::Vector2f(40.f, 40.f));
     cube.CubeOb.setOrigin(cube.CubeOb.getSize() / 2.f);
