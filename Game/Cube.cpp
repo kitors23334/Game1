@@ -9,7 +9,7 @@ void InitCube(Cube& cube, Game& game) {
 
     cube.CubeOb.setSize(sf::Vector2f(40.f, 40.f));
     cube.CubeOb.setOrigin(cube.CubeOb.getSize() / 2.f);
-    cube.CubeOb.setFillColor(sf::Color::Green);
+    void UpdateColor();
 }
 
 void DrawCube(Cube& cube, sf::RenderWindow& window) {

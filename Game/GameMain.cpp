@@ -107,6 +107,7 @@ int main()
 
 		UpdateGame(game, deltaTime);
 
+		//fiz
 		if (isGame == true)
 		{
 			if (isGamepause == false)
@@ -169,7 +170,7 @@ int main()
 						ballSpeedY -= 2.f * dot * ny;
 					}
 
-					// === ОТСКОК ОТ КУБОВ + УДАЛЕНИЕ + СЧЁТ ===
+					// === ОТСКОК ОТ КУБОВ + ПРОЧНОСТЬ + СЧЁТ ===
 					for (int i = 0; i < state.cubeCount; ++i) {
 						if (!state.cubes[i]->active)
 							continue;
@@ -208,11 +209,16 @@ int main()
 							ballSpeedX -= 2.f * dot * nx;
 							ballSpeedY -= 2.f * dot * ny;
 
-							state.cubes[i]->active = false;
-							score++;
+							// Куб получил удар
+							state.cubes[i]->CountReg++;
+							state.cubes[i]->UpdateColor();
+
+							if (state.cubes[i]->CountReg >= state.cubes[i]->CountRegN) {
+								state.cubes[i]->active = false;
+								score++;
+							}
 						}
 					}
-
 				}
 			}
 		}
