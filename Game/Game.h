@@ -4,20 +4,27 @@
 #include "Constants.h"
 #include "Math.h"
 #include "Platform.h"
-#include "Cube.h"
 #include <fstream>
 
 
 class GameState {
 public:
     Cube** cubes;
+    SimpleCube** simplecubes;
     int cubeCount;
-    GameState(int count)
+    int simplecubeCount;
+
+    GameState(int count, int simpleCount)
         : cubeCount(count)
+        , simplecubeCount(simpleCount)
     {
         cubes = new Cube * [cubeCount];
         for (int i = 0; i < cubeCount; ++i) {
             cubes[i] = new Cube();
+        }
+        simplecubes = new SimpleCube * [simplecubeCount];
+        for (int i = 0; i < simplecubeCount; ++i) {
+            simplecubes[i] = new SimpleCube();
         }
     }
 
@@ -28,22 +35,28 @@ public:
         }
         delete[] cubes;
         cubes = nullptr;
+        for (int i = 0; i < simplecubeCount; ++i) {
+            delete simplecubes[i];
+            simplecubes[i] = nullptr;
+        }
+        delete[] simplecubes;
+        simplecubes = nullptr;
     }
 
     GameState(const GameState&) = delete;
     GameState& operator=(const GameState&) = delete;
 };
 
+
 class Game
 {
 public:
 	sf::Vector2f position;
-
 	sf::Font font;
-
 	Platform platform;
-
 	Cube cube;
+    SimpleCube simplecube;
+    Ball ball;
 
 	sf::RectangleShape background;
 
@@ -57,11 +70,10 @@ public:
 	sf::Clock pauseCooldown;      // таймер
 	sf::Clock pauseCooldownf;      // таймер
 
-	sf::Text INtext;
 };
 
 void RestartGame(Game& game);
-void InitGame(Game& game);
+void InitGame(GameState& state, Game& game);
 void UpdateGame(Game& game, float deltaTime);
 void DrawGame(Game& game, sf::RenderWindow& window);
 void DeinializeGame(Game& game);
