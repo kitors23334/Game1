@@ -35,7 +35,7 @@ public:
     sf::RectangleShape CubeOb;
     bool isActive = true;
 
-    int maxBounces = rand() % 2 + 2;      // сколько надо отскоков
+    int maxBounces = 1;      // сколько надо отскоков
     int bounceCount = 0;     // сколько уже отскоков
 
     Cube() {
@@ -61,7 +61,7 @@ public:
     sf::RectangleShape SimpleCubeOb;
     bool isActive = true;
 
-    int maxBounces = 1;      // сколько надо отскоков
+    int maxBounces = 3;      // сколько надо отскоков "rand() % 2 + 2"
     int bounceCount = 0;     // сколько уже отскоков
 
     SimpleCube() {
