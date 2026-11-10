@@ -75,13 +75,13 @@ void HandleBallPlatformBounce(Ball& ball, const Platform& platform)
     }
 }
 
-bool HandleBallCubeBounce(Ball& ball, Cube& cube) {
-    if (!cube.isActive) return false;
+bool HandleBallBrickBounce(Ball& ball, Brick& brick) {
+    if (!brick.isActive) return false;
 
-    float cx = cube.position.x;
-    float cy = cube.position.y;
-    float cw = cube.CubeOb.getSize().x;
-    float ch = cube.CubeOb.getSize().y;
+    float cx = brick.position.x;
+    float cy = brick.position.y;
+    float cw = brick.BrickOb.getSize().x;
+    float ch = brick.BrickOb.getSize().y;
 
     float closestX = std::max(cx - cw / 2.f, std::min(ball.position.x, cx + cw / 2.f));
     float closestY = std::max(cy - ch / 2.f, std::min(ball.position.y, cy + ch / 2.f));
@@ -97,13 +97,13 @@ bool HandleBallCubeBounce(Ball& ball, Cube& cube) {
         return false;
     }
 
-    if (cube.bounceCount > 0 && distSq < 0.1f) {
+    if (brick.hitCount > 0 && distSq < 0.1f) {
         return false;
     }
 
-    cube.bounceCount++;
+    brick.hitCount++;
     score += 1;
-    cube.UpdateColor();
+    UpdateColor(brick);
 
     if (std::abs(dx) < std::abs(dy)) {
         // сверху снизу
@@ -122,17 +122,17 @@ bool HandleBallCubeBounce(Ball& ball, Cube& cube) {
             ball.position.x = closestX + radius;
     }
 
-    return (cube.bounceCount >= cube.maxBounces);
+    return (brick.hitCount >= brick.hitPoints);
 }
 
 // 2
-bool HandleBallSimpleCubeBounce(Ball& ball, SimpleCube& simplecube) {
-    if (!simplecube.isActive) return false;
+bool HandleBallDurableBrickBounce(Ball& ball, DurableBrick& durablebrick) {
+    if (!durablebrick.isActive) return false;
 
-    float scx = simplecube.position.x;
-    float scy = simplecube.position.y;
-    float scw = simplecube.SimpleCubeOb.getSize().x;
-    float sch = simplecube.SimpleCubeOb.getSize().y;
+    float scx = durablebrick.position.x;
+    float scy = durablebrick.position.y;
+    float scw = durablebrick.DurableBrickOb.getSize().x;
+    float sch = durablebrick.DurableBrickOb.getSize().y;
 
     float closestX = std::max(scx - scw / 2.f, std::min(ball.position.x, scx + scw / 2.f));
     float closestY = std::max(scy - sch / 2.f, std::min(ball.position.y, scy + sch / 2.f));
@@ -148,13 +148,13 @@ bool HandleBallSimpleCubeBounce(Ball& ball, SimpleCube& simplecube) {
         return false;
     }
 
-    if (simplecube.bounceCount > 0 && distSq < 0.1f) {
+    if (durablebrick.hitCount > 0 && distSq < 0.1f) {
         return false;
     }
 
-    simplecube.bounceCount++;
+    durablebrick.hitCount++;
     score += 1;
-    simplecube.UpdateColor();
+    DurableUpdateColor(durablebrick);
 
     if (std::abs(sdx) < std::abs(sdy)) {
         // сверху снизу
@@ -173,7 +173,7 @@ bool HandleBallSimpleCubeBounce(Ball& ball, SimpleCube& simplecube) {
             ball.position.x = closestX + radius;
     }
 
-    return (simplecube.bounceCount >= simplecube.maxBounces);
+    return (durablebrick.hitCount >= durablebrick.hitPoints);
 }
 
 void resetBall(Ball& ball, GameState& game, float startSpeedX, float startSpeedY) {

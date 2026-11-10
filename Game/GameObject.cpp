@@ -18,34 +18,35 @@ void DrawBall(Ball& ball, sf::RenderWindow& window)
     window.draw(ball.BallOb);
 }
 
-void InitCube(Cube& cube, Game& game) {
+void InitBrick(Brick& brick, Game& game) {
     Position2D randomPos = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    cube.position.x = randomPos.x;
-    cube.position.y = randomPos.y;
+    brick.position.x = randomPos.x;
+    brick.position.y = randomPos.y;
 
-    cube.CubeOb.setSize(sf::Vector2f(40.f, 40.f));
-    cube.CubeOb.setOrigin(cube.CubeOb.getSize() / 2.f);
+    brick.BrickOb.setSize(sf::Vector2f(40.f, 40.f));
+    brick.BrickOb.setOrigin(brick.BrickOb.getSize() / 2.f);
     void UpdateColor();
 }
 
-void DrawCube(Cube& cube, sf::RenderWindow& window) {
-    cube.CubeOb.setPosition(cube.position.x, cube.position.y);
-    window.draw(cube.CubeOb);
+void DrawBrick(Brick& brick, sf::RenderWindow& window) {
+    brick.BrickOb.setPosition(brick.position.x, brick.position.y);
+    window.draw(brick.BrickOb);
 }
 
-void InitSimpleCube(SimpleCube& simplecube, Game& game) {
+void InitDurableBrick(DurableBrick& durablebrick, Game& game) {
     Position2D simplerandomPos = GetRandomPositionInScreen(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    simplecube.position.x = simplerandomPos.x;
-    simplecube.position.y = simplerandomPos.y;
+    durablebrick.position.x = simplerandomPos.x;
+    durablebrick.position.y = simplerandomPos.y;
 
-    simplecube.SimpleCubeOb.setSize(sf::Vector2f(40.f, 40.f));
-    simplecube.SimpleCubeOb.setOrigin(simplecube.SimpleCubeOb.getSize() / 2.f);
+    durablebrick.DurableBrickOb.setSize(sf::Vector2f(40.f, 40.f));
+    durablebrick.DurableBrickOb.setOrigin(durablebrick.DurableBrickOb.getSize() / 2.f);
     void UpdateColor();
 }
 
-void DrawSimpleCube(SimpleCube& simplecube, sf::RenderWindow& window) {
-    simplecube.SimpleCubeOb.setPosition(simplecube.position.x, simplecube.position.y);
-    window.draw(simplecube.SimpleCubeOb);
+void DrawDurableBrick(DurableBrick& durablebrick, sf::RenderWindow& window) {
+    durablebrick.DurableBrickOb.setPosition(durablebrick.position.x, durablebrick.position.y);
+    window.draw(durablebrick.DurableBrickOb);
 }
+

@@ -1,6 +1,6 @@
 #include "Menu.h"
 
-void NadoMenu_Start(Game& game, sf::RenderWindow& window)
+void NadoMenu_Start(GameState& state, Game& game, sf::RenderWindow& window)
 {
 	if (Menu_Start == true) // старт меню
 	{
@@ -34,6 +34,13 @@ void NadoMenu_Start(Game& game, sf::RenderWindow& window)
 					isGameStarted = true;
 					Menu_Start = false;
 					game.pauseCooldownf.restart();             // сбрасываем таймер
+					for (int i = 0; i < state.simplecubeCount; ++i)
+					{
+						DurableBrick& db = *state.durablebricks[i];
+						Brick& b = *state.bricks[i];
+						DurableUpdateColor(db);
+						UpdateColor(b);
+					}
 				}
 				else if (selectedIndex == 2) {
 					window.close();
@@ -103,22 +110,22 @@ void NadoMenu_Restart(GameState& state, Game& game, sf::RenderWindow& window)
 					game.ball.position = { SCREEN_WIDTH / 2.f, 100 };
 					//reset cube
 					for (int i = 0; i < state.cubeCount; ++i) {
-						Cube& c = *state.cubes[i];
-						InitCube(*state.cubes[i], game);
-						c.maxBounces = rand() % 2 + 2;
-						c.isActive = true;
-						c.bounceCount = 0;
-						c.UpdateColor();
+						Brick& b = *state.bricks[i];
+						InitBrick(*state.bricks[i], game);
+						b.isActive = true;
+						b.hitCount = 0;
+						UpdateColor(b);
 					}
 					//reset simplecube
 					for (int i = 0; i < state.simplecubeCount; ++i) {
-						SimpleCube& sc = *state.simplecubes[i];
-						InitSimpleCube(*state.simplecubes[i], game);
-						sc.isActive = true;
-						sc.bounceCount = 0;
+						DurableBrick& db = *state.durablebricks[i];
+						InitDurableBrick(*state.durablebricks[i], game);
+						db.isActive = true;
+						db.hitCount = 0;
+						DurableUpdateColor(db);
 					}
-					InitCube(game.cube, game);
-					InitSimpleCube(game.simplecube, game);
+					InitBrick(game.brick, game);
+					InitDurableBrick(game.durablebrick, game);
 				}
 				else if (selectedIndex == 2) {
 					window.close();

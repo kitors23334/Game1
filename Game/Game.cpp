@@ -3,6 +3,26 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 
+void DurableUpdateColor(DurableBrick& durablebrick) {
+	int remaining = durablebrick.hitPoints - durablebrick.hitCount;
+	if (remaining >= 3)
+		durablebrick.DurableBrickOb.setFillColor(sf::Color::Yellow);
+	else if (remaining == 2)
+		durablebrick.DurableBrickOb.setFillColor(sf::Color::Blue);
+	else
+		durablebrick.DurableBrickOb.setFillColor(sf::Color::Green);
+}
+
+void UpdateColor(Brick& brick) {
+	int remaining = brick.hitPoints - brick.hitCount;
+	if (remaining >= 3)
+		brick.BrickOb.setFillColor(sf::Color::Yellow);
+	else if (remaining == 2)
+		brick.BrickOb.setFillColor(sf::Color::Blue);
+	else
+		brick.BrickOb.setFillColor(sf::Color::Green);
+}
+
 void RestartGame(Game& game)
 {
 	InitPlatform(game.platform, game);

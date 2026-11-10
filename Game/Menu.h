@@ -20,5 +20,5 @@ const std::vector<std::wstring> MenuRestart = {
 	L"EXIT"
 };
 
-void NadoMenu_Start(Game& game, sf::RenderWindow& window);
+void NadoMenu_Start(GameState& state, Game& game, sf::RenderWindow& window);
 void NadoMenu_Restart(GameState& state, Game& game, sf::RenderWindow& window);

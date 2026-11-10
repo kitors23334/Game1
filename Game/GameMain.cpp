@@ -21,19 +21,19 @@ int main()
 	GameState state(5, 5);
 	//cube
 	for (int i = 0; i < state.cubeCount; ++i) {
-		InitCube(*state.cubes[i], game);
+		InitBrick(*state.bricks[i], game);
 	}
 	//simplecube
 	for (int i = 0; i < state.simplecubeCount; ++i) {
-		InitSimpleCube(*state.simplecubes[i], game);
+		InitDurableBrick(*state.durablebricks[i], game);
 	}
 
 	// Init window
 	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Apples game!");
 
 	// Game initialization
-	InitCube(game.cube ,game);
-	InitSimpleCube(game.simplecube, game);
+	InitBrick(game.brick,game);
+	InitDurableBrick(game.durablebrick, game);
 	InitBall(game.ball, game);
 	InitGame(state, game);
 
@@ -83,20 +83,20 @@ int main()
 				}
 				//1
 				for (int i = 0; i < state.cubeCount; ++i) {
-					Cube& cube = *state.cubes[i];
-					if (!cube.isActive) continue;
+					Brick& brick = *state.bricks[i];
+					if (!brick.isActive) continue;
 
-					if (HandleBallCubeBounce(game.ball, cube)) {
-						cube.isActive = false;  // куб исчезает
+					if (HandleBallBrickBounce(game.ball, brick)) {
+						brick.isActive = false;  // куб исчезает
 					}
 				}
 				//2
 				for (int i = 0; i < state.simplecubeCount; ++i) {
-					SimpleCube& simplecube = *state.simplecubes[i];
-					if (!simplecube.isActive) continue;
+					DurableBrick& durablebrick = *state.durablebricks[i];
+					if (!durablebrick.isActive) continue;
 
-					if (HandleBallSimpleCubeBounce(game.ball, simplecube)) {
-						simplecube.isActive = false;  // куб исчезает
+					if (HandleBallDurableBrickBounce(game.ball, durablebrick)) {
+						durablebrick.isActive = false;  // куб исчезает
 					}
 				}
 			}
@@ -109,21 +109,21 @@ int main()
 
 		// draw cube
 		for (int i = 0; i < state.cubeCount; ++i) {
-			Cube& cube = *state.cubes[i];
-			if (!cube.isActive) {
+			Brick& brick = *state.bricks[i];
+			if (!brick.isActive) {
 				continue;  // не рисуем
 			}
-			DrawCube(cube, window);
+			DrawBrick(brick, window);
 		}
 		// draw simplecube
 		for (int i = 0; i < state.simplecubeCount; ++i) {
-			SimpleCube& simplecube = *state.simplecubes[i];
-			if (!simplecube.isActive) {
+			DurableBrick& durablebrick = *state.durablebricks[i];
+			if (!durablebrick.isActive) {
 				continue;  // не рисуем
 			}
-			DrawSimpleCube(simplecube, window);
+			DrawDurableBrick(durablebrick, window);
 		}
-		NadoMenu_Start(game, window);
+		NadoMenu_Start(state, game, window);
 		NadoMenu_Restart(state, game, window);
 
 		if (isGameStarted == true)
@@ -138,13 +138,13 @@ int main()
 		int inactiveCount = 0;
 		//1
 		for (int i = 0; i < state.cubeCount; ++i) {
-			if (!state.cubes[i]->isActive) {
+			if (!state.bricks[i]->isActive) {
 				inactiveCount++;
 			}
 		}
 		//2
 		for (int i = 0; i < state.simplecubeCount; ++i) {
-			if (!state.simplecubes[i]->isActive) {
+			if (!state.durablebricks[i]->isActive) {
 				inactiveCount++;
 			}
 		}

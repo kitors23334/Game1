@@ -9,8 +9,8 @@
 
 class GameState {
 public:
-    Cube** cubes;
-    SimpleCube** simplecubes;
+    Brick** bricks;
+    DurableBrick** durablebricks;
     int cubeCount;
     int simplecubeCount;
 
@@ -18,29 +18,29 @@ public:
         : cubeCount(count)
         , simplecubeCount(simpleCount)
     {
-        cubes = new Cube * [cubeCount];
+        bricks = new Brick * [cubeCount];
         for (int i = 0; i < cubeCount; ++i) {
-            cubes[i] = new Cube();
+            bricks[i] = new Brick();
         }
-        simplecubes = new SimpleCube * [simplecubeCount];
+        durablebricks = new DurableBrick * [simplecubeCount];
         for (int i = 0; i < simplecubeCount; ++i) {
-            simplecubes[i] = new SimpleCube();
+            durablebricks[i] = new DurableBrick();
         }
     }
 
     ~GameState() {
         for (int i = 0; i < cubeCount; ++i) {
-            delete cubes[i];
-            cubes[i] = nullptr;
+            delete bricks[i];
+            bricks[i] = nullptr;
         }
-        delete[] cubes;
-        cubes = nullptr;
+        delete[] bricks;
+        bricks = nullptr;
         for (int i = 0; i < simplecubeCount; ++i) {
-            delete simplecubes[i];
-            simplecubes[i] = nullptr;
+            delete durablebricks[i];
+            durablebricks[i] = nullptr;
         }
-        delete[] simplecubes;
-        simplecubes = nullptr;
+        delete[] durablebricks;
+        durablebricks = nullptr;
     }
 
     GameState(const GameState&) = delete;
@@ -54,8 +54,8 @@ public:
 	sf::Vector2f position;
 	sf::Font font;
 	Platform platform;
-	Cube cube;
-    SimpleCube simplecube;
+    Brick brick;
+    DurableBrick durablebrick;
     Ball ball;
 
 	sf::RectangleShape background;
@@ -71,7 +71,8 @@ public:
 	sf::Clock pauseCooldownf;      // таймер
 
 };
-
+void DurableUpdateColor(DurableBrick& durablebrick);
+void UpdateColor(Brick& brick);
 void RestartGame(Game& game);
 void InitGame(GameState& state, Game& game);
 void UpdateGame(Game& game, float deltaTime);
